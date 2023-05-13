@@ -1,0 +1,146 @@
+/* Chat.css */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+
+  max-width: 500px;
+  height: 70vh;
+  margin: 0 auto;
+  background-color: rgb(60, 60, 91);
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.control {
+  display: flex;
+  flex-direction: row;
+  height: 10%;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chat-container {
+  flex: 1;
+  background-color: #f7f9fa;
+  height: 90%;
+  border-radius: 8px 8px 0 0;
+  padding: 20px;
+  overflow-y: scroll;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.chat-message {
+  margin-bottom: 16px;
+}
+
+.chat-author {
+  font-weight: bold;
+  font-size: 14px;
+  color: #333;
+}
+
+.chat-text {
+  font-size: 14px;
+  color: #555;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.chat-divider {
+  margin: 20px 0;
+  height: 1px;
+  background-color: #ccc;
+}
+
+.send-button {
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  /* transition: background-color 0.3s ease; */
+  border-radius: 4px;
+}
+
+.send-button:focus {
+  outline: none;
+}
+
+.send-button:hover {
+  background-color: #45a049;
+}
+.time {
+  font-size: 12px;
+  font-weight: 150;
+  align-self: flex-end;
+}
+
+input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  /* transition: border-color 0.3s ease; */
+  border-radius: 4px;
+}
+
+input:focus {
+  outline: none;
+  border-color: #4caf50;
+}
+
+input::placeholder {
+  color: #aaa;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  /* display: none; */
+}
+
+::-webkit-scrollbar-track {
+  background-color: #f7f9fa;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #999;
+}
+
+@media only screen and (max-width: 1000px) {
+  body {
+    height: max-content;
+    overflow-y: hidden;
+  }
+  .container {
+    width: 97vw;
+    height: 90vh;
+
+    border-radius: 0;
+  }
+
+  .chat-container {
+    height: 80%;
+    border-radius: 0;
+  }
+
+  .control {
+    height: auto;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+  }
+
+  input {
+    margin-top: 10px;
+  }
+}

@@ -31,7 +31,6 @@ export default function Signup(props) {
       setLoading(false);
     }
   };
-  console.log(email);
   return (
     <Fragment>
       <div className={classes.body}>

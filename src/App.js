@@ -6,11 +6,11 @@ import { useDispatch } from "react-redux";
 import { ConnectionState } from "./components/socket/connectionState";
 import { Events } from "./components/socket/events";
 import axios from "axios";
+import { Users } from "./components/users/user";
+import "./App.css";
 
-import { ConnectionManager } from "./components/socket/connectionManeger";
 import { userSliceActions } from "./store/userSlice";
 import SigIn from "./components/sigin/sigin";
-import { JoinChat } from "./components/chat/joinChjat";
 import { useSelector } from "react-redux";
 
 import { Fragment, useEffect, useState } from "react";
@@ -19,45 +19,16 @@ import { SendMessage } from "./components/chat/sendMessage";
 function App() {
   const token1 = localStorage.getItem("token");
   const [isConnected, setIsConnected] = useState(socket.connected);
-  const [fooEvents, setFooEvents] = useState([]);
   const [sent, setSent] = useState("");
   const [sockett, setSockett] = useState(null);
+  const [typers, setTypers] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [usr, setUsers] = useState([]);
+  const [isChatSelected, setSelectChat] = useState(false);
   const dispatch = useDispatch();
   const token2 = useSelector((data) => data.userSlice.token);
 
-  function getNowTime() {
-    var currentDate = new Date();
-
-    var year = currentDate.getFullYear();
-    var month = currentDate.getMonth() + 1; // Months are zero-based, so we add 1
-    var day = currentDate.getDate();
-
-    var hours = currentDate.getHours();
-    var minutes = currentDate.getMinutes();
-
-    // Formatting the components with leading zeros if necessary
-    var formattedMonth = month < 10 ? "0" + month : month;
-    var formattedDay = day < 10 ? "0" + day : day;
-    var formattedHours = hours < 10 ? "0" + hours : hours;
-    var formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
-
-    var fullDate =
-      year +
-      "-" +
-      formattedMonth +
-      "-" +
-      formattedDay +
-      " " +
-      formattedHours +
-      ":" +
-      formattedMinutes;
-
-    return fullDate;
-  }
   function formatDateTime(dateString) {
-    console.log(dateString, "dsasadasfa");
-    console.log(dateString);
     var date = new Date(dateString);
     var tzOffset = 4; // Offset for Georgia timezone (Tbilisi) in hours
     // var localOffset = date.getTimezoneOffset() / 60;
@@ -85,7 +56,6 @@ function App() {
         timeZone: "Asia/Tbilisi",
       };
       var formatter = new Intl.DateTimeFormat("en-US", options);
-      console.log(date, "data");
       return formatter.format(date);
     }
   }
@@ -97,6 +67,16 @@ function App() {
           "http://localhost:4500/messages/getMessages/4",
           { headers: { Authorization: `Bearer ${token}` } }
         );
+
+        const users = await axios.get("http://localhost:4500/chat/getUsers", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const idk = users.data.map((user) => {
+          return { user: user["email"] };
+        });
+        setUsers(idk);
+
+        console.log(users);
         const mydata = data.data.map((data) => {
           var formattedDate = formatDateTime(data["createdAt"]);
           return {
@@ -110,13 +90,13 @@ function App() {
         mydata.sort(function (a, b) {
           return a.id - b.id; // Sort in descending order based on id property
         });
-
         setMessages(mydata);
       } catch (err) {
         // window.location.reload(true);
         console.log(err);
       }
     }
+
     if (token1) {
       dispatch(userSliceActions.setToken(token1));
       getMessages(token1);
@@ -137,18 +117,13 @@ function App() {
 
       function onDisconnect(err) {
         // io.connect();
-        console.log(err);
         setIsConnected(false);
       }
 
-      function onFooEvent(value) {
-        setFooEvents((previous) => [...previous, value]);
-      }
       io.connect();
       io.on("connection", onConnect);
       io.on("disconnect", (err) => onDisconnect(err));
       io.on("error", (err) => {
-        console.log(err);
         if (err === "token is not verifed") {
           alert(
             "we are sarry! your token is expired or is invalid, please login again."
@@ -156,15 +131,31 @@ function App() {
           localStorage.clear();
           window.location.reload();
         }
-        console.log(err);
       });
       io.on("join", (data) => {
         console.log("joined chat");
       });
+      io.on("typing", (data) => {
+        console.log(typers, "typersssssssssssss");
+        const user = data["email"].split("@")[0];
+
+        const exsists = typers.findIndex((data) => data === user);
+
+        if (exsists === -1) {
+          setTypers((prev) => [...prev, user]);
+        } else {
+          console.log("aq ar shemovdivar");
+        }
+      });
       io.on("message", (data) => {
-        console.log("data", data);
         data["createdAt"] = formatDateTime(data["createdAt"]);
         setMessages((prev) => [...prev, data]);
+      });
+      io.on("stopTyping", (data) => {
+        const user = data["email"].split("@")[0];
+        const mynewData = typers.filter((data) => data !== user);
+
+        setTypers(mynewData);
       });
       io.on("sent", (data) => {
         setSent("sent");
@@ -174,7 +165,6 @@ function App() {
         io.off("sent");
         io.off("connect", onConnect);
         io.off("disconnect", onDisconnect);
-        io.off("foo", onFooEvent);
         io.off("join");
         io.off("message");
       };
@@ -187,18 +177,22 @@ function App() {
           <Route
             path="/"
             element={
-              <Fragment>
-                <ConnectionState isConnected={isConnected} />
-                <Events events={fooEvents} />
-                {/* <ConnectionManager />
-                <JoinChat /> */}
-                <SendMessage
-                  socket={sockett}
-                  setSent={setSent}
-                  messages={messages}
-                  sent={sent}
+              <div className="everythingCont">
+                <Users
+                  chat={isChatSelected}
+                  setChat={setSelectChat}
+                  users={usr}
                 />
-              </Fragment>
+                {isChatSelected && (
+                  <SendMessage
+                    typers={Array.from(new Set(typers))}
+                    socket={sockett}
+                    setSent={setSent}
+                    messages={messages}
+                    sent={sent}
+                  />
+                )}
+              </div>
             }
           />
         </Routes>

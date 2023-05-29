@@ -7,7 +7,7 @@
 
   max-width: 500px;
   height: 70vh;
-  margin: 0 auto;
+  /* margin: 0 auto; */
   background-color: rgb(60, 60, 91);
   padding: 4px;
   border-radius: 10px;
@@ -42,11 +42,16 @@
 }
 
 .chat-text {
-  font-size: 14px;
+  font-size: 12px;
   color: #555;
   white-space: pre-wrap;
   word-wrap: break-word;
   word-break: break-word;
+}
+.chat-message:hover {
+  border-radius: 5px;
+  background-color: rgb(179, 179, 179);
+  cursor: pointer;
 }
 
 .chat-divider {
